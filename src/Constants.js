@@ -1,0 +1,11 @@
+const MASTER_SHEET_ID = '1MM9xhP1i9DsYlCYhHzkEdAINyZunxI9D4DKBmlFKg1c';  
+const MD_CALENDAR_ID = 'juanmf@gmail.com'; 
+const ROOT_FOLDER_ID = 'SUEROTERAPIA_PACIENTES'; 
+const APP_TIME_ZONE = Session.getScriptTimeZone(); // Get the script's timezone
+const VISI_DEFAULT_PRICE = 30000.00;
+
+const HTTP_CODE_SUCCESS = 200;
+const HTTP_CODE_REDIRECT = 302;
+const HTTP_CODE_BAD_REQUEST = 400;
+const HTTP_CODE_UNPROCESSABLE_ENTITY = 422;
+const HTTP_CODE_FORBIDDEN = 403;

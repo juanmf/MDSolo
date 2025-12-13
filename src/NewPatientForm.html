@@ -1,0 +1,98 @@
+<div class="container">
+    <form id="new-patient-form">
+        <fieldset>
+            <legend>New Patient Record</legend>
+
+            <label for="new-patient-name">Patient Full Name:</label>
+            <input 
+                type="text" 
+                id="new-patient-name" 
+                name="patientName" 
+                placeholder="E.g., Juan Pérez" 
+                required
+            >
+            
+            <label for="new-patient-gov-id">Government ID:</label>
+            <input 
+                type="text" 
+                id="new-patient-gov-id" 
+                name="patientGovId" 
+                placeholder="National ID or Passport Number"
+                required
+            >
+
+            <label for="new-patient-phone">Phone Number:</label>
+            <input 
+                type="tel" 
+                id="new-patient-phone" 
+                name="patientPhone" 
+                placeholder="E.g., +1-555-555-1234"
+                required
+            >
+
+            <button type="submit" id="submit-button" class="contrast">
+                Create Record
+            </button>
+        </fieldset>
+    </form>
+    
+    <p id="status-message" style="margin-top: 15px; font-weight: bold;"></p>
+</div>
+
+<script>
+    // Client-side JavaScript to handle form submission
+    const form = document.getElementById('new-patient-form');
+    initForm(form);
+
+    function initForm(form) {
+        form.addEventListener('submit', function(event) {
+          event.preventDefault(); // Prevent default form submission
+
+          const form = event.target;
+          
+          // 1. Collect data from the form fields
+          const patientData = {
+              patientName: form.elements['new-patient-name'].value.trim(),
+              patientGovId: form.elements['new-patient-gov-id'].value.trim(),
+              patientPhone: form.elements['new-patient-phone'].value.trim(),
+          };
+
+          const submitButton = document.getElementById('submit-button');
+          const statusDiv = document.getElementById('status-message');
+
+          // Disable button and show status
+          submitButton.disabled = true;
+          statusDiv.textContent = 'Processing request...';
+          
+          // 2. Call the server function (assuming you have a createPatient function)
+          google.script.run
+              .withSuccessHandler(function(response) {
+                  // Handle the structured JSON response (code 302 for redirect, 400 for errors)
+                  handleServerResponse(response); 
+                  if (response.status >= 400) {
+                    const container = document.getElementById(MAIN_CONTAINER_ID); 
+                    if (container) {
+                        // 1. Replace the entire container content with the new HTML (including the form)
+                        container.innerHTML = response.content; 
+                        
+                        // 2. CRITICAL STEP: The old form listener is gone, 
+                        //    so we must attach the listener to the new form element.
+                        const newForm = document.getElementById('new-patient-form');
+                        if (newForm) {
+                            initForm(newForm); 
+                        }
+                    }
+                  }
+              })
+              .withFailureHandler(function(error) {
+                  statusDiv.textContent = 'Server Error: ' + error.message;
+                  submitButton.disabled = false;
+              })
+              .asyncEmbedController('createNewPatient', patientData); // <-- Calls your server function
+      })
+    
+    };
+    
+    // NOTE: Ensure the handleServerResponse(response) dispatcher function is defined globally
+    // in a separate <script> or included file, as discussed previously.
+</script>

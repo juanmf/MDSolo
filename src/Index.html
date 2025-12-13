@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+    <?!= includeStaticTemplate('PicoCSS', null)?>
+</head>
+<body>
+<script>
+const MAIN_CONTAINER_ID="main-content";
+function handleServerResponse(response) {
+  console.log(response);
+  switch (response.status) {
+    
+    case 302: // Found/Redirect (Use for successful actions requiring navigation)
+    case 303: // See Other (A more semantically correct code for POST-to-GET redirect)
+      // **RELOAD THE PAGE/REDIRECT**
+      if (response.content) {
+        window.location.href = response.content;
+      }
+      break;
+      
+
+    default:
+      // if no redirect, local action handled by caller
+      break;
+  }
+}
+</script>
+
+    <?!= embedController(headerController, {user_name: user_name}); ?>
+    <?!= embedController(menuController, {gasUrl: gasUrl}); ?>
+
+    <div id="main-content">
+        <?!= embedController(pageController, queryData); ?>
+    </div>
+
+</body>
+</html>

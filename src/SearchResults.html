@@ -1,0 +1,31 @@
+
+<? if (data === {}) { ?>
+    <p>Enter search criteria and click Search.</p>
+<? } else { ?>
+  <? if (matches && matches.length > 0) { ?>
+      <table>
+          <thead>
+              <tr>
+                  <th>Patient Name</th>
+                  <th>Gov ID</th>
+                  <th>Created Date</th>
+                  <th>Action</th>
+              </tr>
+          </thead>
+          <tbody>
+              <? matches.forEach(function(patient) { ?>
+                  <tr>
+                      <td><?= patient.name ?></td>
+                      <td><?= patient.govId ?></td>
+                      <td><?= patient.dateCreated ?></td>
+                      <td><a href="<?= gasUrl + patient.detailsLink ?>">View Details</a></td>
+                  </tr>
+              <? }) ?>
+          </tbody>
+      </table>
+  <? } else { ?>
+      <div style="padding: 15px; background-color: #ffe0e0; border: 1px solid #ff7f7f; border-radius: 4px;">
+          <p style="color: #c0392b; margin: 0;">No patients matched your criteria.</p>
+      </div>
+  <? } ?>  
+<? } ?>

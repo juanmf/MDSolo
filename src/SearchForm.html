@@ -1,0 +1,77 @@
+<div class="container">
+    <fieldset>
+        <legend>Patient Search</legend>
+
+        <form id="patient-search-form">
+            <label for="search-term">Name / Government ID:</label>
+            <input 
+                type="search" 
+                id="search-term" 
+                name="searchTerm" 
+                placeholder="Name or ID (e.g., Marcelo or 33459651)" 
+            >
+            
+            <label for="diagnosis-keyword">Search by Diagnosis Keyword (Notes):</label>
+            <input 
+                type="search" 
+                id="diagnosis-keyword" 
+                name="diagnosisKeyword" 
+                placeholder="E.g., Pneumonia, Rash"
+            >
+
+            <button type="submit" id="search-button" class="contrast">
+                Search Patients
+            </button>
+        </form>
+    </fieldset>
+    <div id="search-results-container" style="margin-top: 20px;">
+      <?!= embedController(doPatientSearchController, data)?>
+    </div>
+</div>
+
+<script>
+// Client-side JavaScript to handle form submission
+document.getElementById('patient-search-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const form = event.target;
+    const searchTerm = form.elements['searchTerm'].value.trim();
+    const diagnosisKeyword = form.elements['diagnosisKeyword'].value.trim();
+
+    if (!searchTerm && !diagnosisKeyword) {
+        document.getElementById('search-results-container').innerHTML = 
+            '<p style="color: red;">Please enter at least one search term.</p>';
+        return;
+    }
+
+    const searchButton = document.getElementById('search-button');
+    searchButton.disabled = true;
+    document.getElementById('search-results-container').innerHTML = 
+        '<p aria-busy="true">Searching records...</p>';
+
+    const searchData = { searchTerm: searchTerm, diagnosisKeyword: diagnosisKeyword };
+
+    google.script.run
+        .withSuccessHandler(function(response) {
+            searchButton.disabled = false;
+            // The server will return a 200/HTML_UPDATE response
+            handleSearchResponse(response);
+        })
+        .withFailureHandler(function(error) {
+            searchButton.disabled = false;
+            document.getElementById('search-results-container').innerHTML = 
+                `<p style="color: red;">Search Failed: ${error.message}</p>`;
+        })
+        .asyncEmbedController('doPatientSearch', searchData);
+});
+
+// A simple dispatcher for the search results (assuming the server returns code: 200)
+function handleSearchResponse(response) {
+    console.log(response);
+    if (response.status === 200) {
+        document.getElementById('search-results-container').innerHTML = response.content;
+    } else {
+        // Handle other non-fatal status codes if needed
+    }
+}
+</script>

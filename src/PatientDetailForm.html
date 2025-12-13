@@ -1,0 +1,76 @@
+<div class="details-grid">
+    
+    <div class="header-info">
+        <h3>Patient: <?!= details.patientName ?></h3>
+        <p><a role="button" href="<?!= details.patientSSUrl ?>">Open Patient Sheet</a>
+        <a role="button" href="<?!= details.folderUrl ?>">Open Patient Folder</a></p>
+        
+    </div>
+
+    <div class="data-card">
+        <h3>Summary</h3>
+        <p><strong>Last Visit:</strong> <?!= details.lastVisit ?></p>
+        <p><strong>Last Diagnosis:</strong> <?!= details.lastDiagnosis ?></p>
+        
+        <hr style="border: 0; border-top: 1px solid #ddd; margin: 15px 0;">
+        
+        <h3>General Notes</h3>
+        <p style="white-space: pre-wrap; font-size: 0.9em; color: #555;">
+            <?!= details.notes ?>
+        </p>
+    </div>
+
+    <?!= embedController(newVisitController, details)?>
+
+</div>
+
+<script>
+  // Client-side JavaScript function to handle form submission
+  document.getElementById('new-visit-form').addEventListener('submit', function(event) {
+    event.preventDefault(); // Stop the default form submission
+
+    const patientId = document.getElementById('patient-id').value;
+    const visitDate = document.getElementById('visit-date').value;
+    const visitTime = document.getElementById('visit-time').value;
+    const visitPrice = document.getElementById('visit-price').value.trim();
+    const notes = document.getElementById('initial-notes').value.trim();
+    
+    const statusDiv = document.getElementById('visit-status');
+    const scheduleButton = document.getElementById('schedule-button');
+    
+    if (!patientId || !visitDate || !visitTime || !notes) {
+      statusDiv.textContent = 'All fields are required.';
+      return;
+    }
+    
+    // Disable button and show status
+    scheduleButton.disabled = true;
+    scheduleButton.textContent = 'Processing...';
+    statusDiv.textContent = 'Creating calendar event and updating log...';
+    statusDiv.style.color = '#FFA500'; // Orange for pending
+
+    // Asynchronously call the server-side function
+    // TODO: revisit action on success. (reload/Home/)
+    google.script.run
+      .withSuccessHandler(function(statusMessage) {
+        statusDiv.textContent = statusMessage;
+        statusDiv.style.color = statusMessage.includes("Error") ? 'red' : '#007bff'; // Red or Blue
+        
+        // Reset form (keep patient ID hidden field value)
+        scheduleButton.disabled = false;
+        scheduleButton.textContent = 'Schedule & Create Log Entry';
+        document.getElementById('initial-notes').value = '';
+        
+        // Optional: Update the patient details page to show the new visit entry
+        // refreshPatientDetails(patientId); 
+      })
+      .withFailureHandler(function(error) {
+        statusDiv.textContent = 'Failed to book visit: ' + error.message;
+        statusDiv.style.color = 'red';
+        scheduleButton.disabled = false;
+        scheduleButton.textContent = 'Schedule & Create Log Entry';
+      })
+      //patientLogSSId, visitDate, visitTime, visitPrice, notes
+      .bookNewVisit(patientId, visitDate, visitTime, visitPrice, notes); // <-- Calls your server function
+  });
+</script>

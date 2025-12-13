@@ -1,0 +1,37 @@
+<? if (bookedPatients && bookedPatients.length > 0) { ?>
+    <hgroup>
+        <h3>Patients Booked Today</h3>
+        <p><?= bookedPatients.length ?> appointment(s) found.</p>
+    </hgroup>
+    
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Patient Name</th>
+                    <th>Appointment Time</th>
+                    <th>Patient Sheet</th>
+                </tr>
+            </thead>
+            <tbody>
+                <? bookedPatients.forEach(function(patient) { ?>
+                    <tr>
+                        <td><?= patient.patientName ?></td>
+                        
+                        <td><?= patient.eventStartTime ?></td>
+
+                        <td>
+                            <a href="<?= patient.patientDetailsLink ?>" target="_blank">
+                                View Sheet
+                            </a>
+                        </td>
+                    </tr>
+                <? }); ?>
+            </tbody>
+        </table>
+    </div>
+<? } else { ?>
+    <div class="alert alert-info" role="alert">
+        <p>🎉 No patients are currently booked for today.</p>
+    </div>
+<? } ?>
