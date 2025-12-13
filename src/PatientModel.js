@@ -3,6 +3,7 @@ class Patient {
     this.patientName = data.patientName
     this.patientGovId = data.patientGovId
     this.patientPhone = data.patientPhone
+    this.patientEmail = data.patientEmail
     this.rootFolder = data.rootFolder
     // TODO: defind filder input type, name, id, object...
     this.patientFolder = data.folder
@@ -38,7 +39,10 @@ class Patient {
     sheet.getRange('B3').setValue(this.patientGovId);
     sheet.getRange('A4').setValue('Patient Folder');
     sheetLink(this.patientFolder.getUrl(), "Open Patient Folder", sheet.getRange('B4'));
-    
+
+    sheet.getRange('A5').setValue('Patient e-Mail:');
+    sheet.getRange('B5').setValue(this.patientEmail);
+
     // TODO: define VisitModel
     // Visit Log Headers (starting from line 10)
     sheet.getRange('A10:F10').setValues([[

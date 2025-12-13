@@ -1,6 +1,6 @@
 /*
 use cases:
-* refactor createPatient
+* refactor createPatient -- Ok.
 * Crear lista de diagnosticos as labels
 * search (DNI, nombre, diagnostico)
  > open detail.

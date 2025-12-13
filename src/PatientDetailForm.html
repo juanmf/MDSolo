@@ -2,8 +2,24 @@
     
     <div class="header-info">
         <h3>Patient: <?!= details.patientName ?></h3>
-        <p><a role="button" href="<?!= details.patientSSUrl ?>">Open Patient Sheet</a>
-        <a role="button" href="<?!= details.folderUrl ?>">Open Patient Folder</a></p>
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <a role="button"
+               href="mailto:<?!= details.patientEmail ?>"
+               class="secondary small"
+               title="Send email to <?!= details.patientEmail ?>">
+                Email: <?!= details.patientEmail ?>
+            </a>
+
+            <a role="button"
+               href="tel:<?!= details.patientPhone ?>"
+               class="secondary small"
+               title="Call <?!= details.patientPhone ?>">
+                Call: <?!= details.patientPhone ?>
+            </a>
+        </div>
+
+        <div><a role="button" href="<?!= details.patientSSUrl ?>">Open Patient Sheet</a>
+        <a role="button" href="<?!= details.folderUrl ?>">Open Patient Folder</a></div>
         
     </div>
 

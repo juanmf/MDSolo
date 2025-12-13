@@ -16,7 +16,8 @@ function patientDetailController(data) {
     // --- 1. Get Patient Name from Header (Cell B1) ---
     // Assuming the patient log sheet has the name in cell B1.
     details.patientName = logSheet.getRange('B1').getValue();
-
+    details.patientPhone = logSheet.getRange('B2').getValue();
+    details.patientEmail = logSheet.getRange('B5').getValue();
 
     // --- 2. Get Last Visit and Diagnosis from Log (Last Row) ---
 
@@ -60,6 +61,7 @@ function createNewPatientController(patientData) {
   const patientName = patientData.patientName;
   const patientGovId = patientData.patientGovId;
   const patientPhone = patientData.patientPhone;
+  const patientEmail = patientData.patientEmail;
 
   let inputHasErrors = hasErrors(patientName, patientGovId, patientPhone)
   if (inputHasErrors) {
@@ -68,7 +70,7 @@ function createNewPatientController(patientData) {
         {error: inputHasErrors, patientData: patientData, responseMetadata: new ResponseMetadata(HTTP_CODE_UNPROCESSABLE_ENTITY)});
   } 
 
-  const patient = doCreateNewPatient(patientName, patientGovId, patientPhone);
+  const patient = doCreateNewPatient(patientName, patientGovId, patientPhone, patientEmail);
   const gasUrl = ScriptApp.getService().getUrl();
   return mergeTemplateData(null, 
         // TODO: MAKE ROUTER
@@ -96,7 +98,7 @@ function hasErrors(patientName, patientGovId, patientPhone) {
  * @param {string} patientName The name entered by the user.
  * @return {string} Success or error message.
  */
-function doCreateNewPatient(patientName, patientGovId, patientPhone) {
+function doCreateNewPatient(patientName, patientGovId, patientPhone, patientEmail) {
   if (!patientName) {
     return "Error: Patient name cannot be empty.";
   }
@@ -109,7 +111,8 @@ function doCreateNewPatient(patientName, patientGovId, patientPhone) {
     data = {
       patientName: patientName, 
       patientGovId: patientGovId, 
-      patientPhone: patientPhone, 
+      patientPhone: patientPhone,
+      patientEmail: patientEmail,
       rootFolder: rootFolder,
       folder: null,
       sheetId: null,
@@ -173,31 +176,4 @@ function getOrCreatePatientRootFolder(folderName) {
     Logger.log(`Root folder "${folderName}" not found. Creating a new one.`);
     return DriveApp.createFolder(folderName);
   }
-}
-
-/**
- * Sets up the column headers for the patient's dedicated visit log spreadsheet.
- * @param {GoogleAppsScript.Spreadsheet.Spreadsheet} ss The spreadsheet object.
- * @param {string} name Patient name for header info.
- */
-function setupPatientLogSheet(ss, name) {
-  const sheet = ss.getActiveSheet();
-  
-  // Header Information (e.g., lines 1-5)
-  sheet.getRange('A1').setValue('Patient Name:');
-  sheet.getRange('B1').setValue(name);
-  
-  // Visit Log Headers (starting from line 10)
-  sheet.getRange('A10:F10').setValues([[
-    'Date and Time of Appointment',
-    'Notes of Visit',
-    'Visit Amount',
-    'Amount Paid',
-    'Visits',
-    'Diagnosis'
-  ]]);
-  
-  // Optional: Apply basic formatting
-  sheet.getRange('A10:F10').setFontWeight('bold').setBackground('#f0f0f0');
-  sheet.setColumnWidth(2, 300); // Widen the Notes column
 }

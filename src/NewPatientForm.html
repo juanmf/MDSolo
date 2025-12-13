@@ -22,12 +22,19 @@
             >
 
             <label for="new-patient-phone">Phone Number:</label>
-            <input 
-                type="tel" 
-                id="new-patient-phone" 
-                name="patientPhone" 
-                placeholder="E.g., +1-555-555-1234"
-                required
+            <input
+                    type="tel"
+                    id="new-patient-phone"
+                    name="patientPhone"
+                    placeholder="E.g., +1-555-555-1234"
+                    required
+            >
+            <label for="new-patient-email">e-Mail:</label>
+            <input
+                    type="tel"
+                    id="new-patient-email"
+                    name="patientPhone"
+                    placeholder="E.g., +jon@gmail.com"
             >
 
             <button type="submit" id="submit-button" class="contrast">
@@ -55,6 +62,7 @@
               patientName: form.elements['new-patient-name'].value.trim(),
               patientGovId: form.elements['new-patient-gov-id'].value.trim(),
               patientPhone: form.elements['new-patient-phone'].value.trim(),
+              patientEmail: form.elements['new-patient-email'].value.trim(),
           };
 
           const submitButton = document.getElementById('submit-button');

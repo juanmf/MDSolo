@@ -16,23 +16,16 @@ function bookNewVisit(patientLogSSId, visitDate, visitTime, visitPrice, notes) {
   try {
     const logSS = SpreadsheetApp.openById(patientLogSSId);
     const patientName = logSS.getRange("B1").getValue();
+    const patientEmail = logSS.getRange("B5").getValue();
     const logSheet = logSS.getSheets()[0]; // Get the Visit Log sheet
     
     // 1. Define Start/End Time (assume 1 hour)
     const startDateTime = new Date(`${visitDate}T${visitTime}:00`);
-    const endDateTime = new Date(startDateTime.getTime() + (60 * 60 * 1000)); // Add 1 hour
+    const endDateTime = new Date(startDateTime.getTime() + (VISIT_DURATION_MINUTES * 60 * 1000));
 
-    // 2. Create Calendar Event
+    const eventId = createAndInvitePatientEvent(
+        patientName, startDateTime, endDateTime, patientEmail, logSS, notes)
     const calendar = CalendarApp.getCalendarById(MD_CALENDAR_ID);
-    const event = calendar.createEvent(
-      patientName, // Event title
-      startDateTime,
-      endDateTime,
-      { description: `Initial Notes: ${notes} \n  View Patient Details (Click 'More Details' first to activate link): ${logSS.getUrl()}\
-      \n patientId: ${logSS.getId()} `}
-    );
-    
-    const eventId = event.getId();
     const fullEvent = calendar.getEventById(eventId);
     // 3. Append Row to Patient Log Sheet (Columns A, B, C, D, E, F)
     // Note: Amount and Paid columns are left blank for future billing update.
@@ -62,6 +55,82 @@ function bookNewVisit(patientLogSSId, visitDate, visitTime, visitPrice, notes) {
     return `Error booking visit: ${e.message}`;
   }
 }
+
+/**
+ * Creates a calendar event and sends an invitation email to the patient.
+ * NOTE: Requires the "Calendar API" service to be enabled in the Apps Script project.
+ * @param {string} patientName The patient's name (event title).
+ * @param {Date} startDateTime The event start time (Date object).
+ * @param {Date} endDateTime The event end time (Date object).
+ * @param {string} patientEmail The email address of the patient.
+ * @param {GoogleAppsScript.Spreadsheet.Spreadsheet} logSS The patient's log spreadsheet.
+ * @returns {string} The ID of the created event.
+ */
+function createAndInvitePatientEvent(patientName,
+                                     startDateTime,
+                                     endDateTime,
+                                     patientEmail,
+                                     logSS,
+                                     notes) {
+  // Configuration: Replace with your actual calendar ID
+  let atendees = []
+  if (patientEmail) {
+    atendees = [
+      { email: patientEmail } // Patient's email
+      // You can add other staff emails here if needed
+    ];
+  }
+  // 1. Build the Event Resource Object
+  const eventResource = {
+    summary: patientName,
+    description: `Initial Notes: ${notes} \n  View Patient Details (Click 'More Details' first to activate link): \
+    ${logSS.getUrl()}\n patientId: ${logSS.getId()}`,
+
+    // Convert JavaScript Date objects to RFC3339 format for the API
+    start: {
+      dateTime: startDateTime.toISOString(),
+      timeZone: Session.getScriptTimeZone() // Use the script's default time zone
+    },
+    end: {
+      dateTime: endDateTime.toISOString(),
+      timeZone: Session.getScriptTimeZone()
+    },
+
+    // 2. Define the Patient as an Attendee
+    attendees: atendees,
+
+    // Optional: Controls attendee privileges
+    guestsCanModify: false,
+    guestsCanInviteOthers: false,
+    guestsCanSeeOtherGuests: false
+  };
+
+  // 3. Use the Advanced Service to Insert the Event and Send Notifications
+  try {
+    const createdEvent = Calendar.Events.insert(
+        eventResource,
+        MD_CALENDAR_ID,
+        {
+          // *** CRITICAL STEP ***: This flag triggers the email notification
+          sendNotifications: true
+        }
+    );
+
+    Logger.log(`Event created and email sent for Patient: ${patientName}. Event ID: ${createdEvent.id}`);
+    return createdEvent.id;
+
+  } catch (e) {
+    Logger.log(`Error creating event via Calendar API: ${e.message}`);
+    throw new Error('Failed to create calendar event and send invite.');
+  }
+}
+
+// Example of how to call this function:
+// const newPatientId = 'patient_345'; // Example ID
+// const patientEmail = 'patient.email@example.com';
+// const start = new Date(2025, 11, 13, 10, 0);
+// const end = new Date(2025, 11, 13, 11, 0);
+// const eventId = createAndInvitePatientEvent('John Doe', start, end, patientEmail, SpreadsheetApp.getActiveSpreadsheet());
 
 function getBaseEventId(fullEventId, calendarId) {
   // Finds the '@' symbol and returns the substring before it.
