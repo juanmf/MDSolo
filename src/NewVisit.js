@@ -9,50 +9,44 @@
  * @param {string} notes Initial notes/diagnosis.
  * @return {string} Success message or error.
  */
-function bookNewVisit(patientLogSSId, visitDate, visitTime, visitPrice, notes) {
+function bookNewVisitController(data) {
   // --- ASSUMPTION ---
   // This call should happen from within the patient detail page
-
+  let {patientId, visitDate, visitTime, visitPrice, notes} = data;
   try {
-    const logSS = SpreadsheetApp.openById(patientLogSSId);
-    const patientName = logSS.getRange("B1").getValue();
-    const patientEmail = logSS.getRange("B5").getValue();
-    const logSheet = logSS.getSheets()[0]; // Get the Visit Log sheet
+    const patient = Patient.fromSheet(patientId);
     
     // 1. Define Start/End Time (assume 1 hour)
     const startDateTime = new Date(`${visitDate}T${visitTime}:00`);
     const endDateTime = new Date(startDateTime.getTime() + (VISIT_DURATION_MINUTES * 60 * 1000));
 
     const eventId = createAndInvitePatientEvent(
-        patientName, startDateTime, endDateTime, patientEmail, logSS, notes)
+        patient.patientName, startDateTime, endDateTime, patient.patientEmail, patient.patientSS, notes);
+
     const calendar = CalendarApp.getCalendarById(MD_CALENDAR_ID);
     const fullEvent = calendar.getEventById(eventId);
-    // 3. Append Row to Patient Log Sheet (Columns A, B, C, D, E, F)
-    // Note: Amount and Paid columns are left blank for future billing update.
-    const newVisitRow = [
-      startDateTime, // Column A: Date/Time
-      notes,         // Column B: Notes
-      visitPrice,    // Column C: Visit Amount
-      '',            // Column D: Amount Paid (blank)
-      'TEMP_EVENT_PLACEHOLDER', // Column E: Placeholder
-      'Pending'      // Column F: Diagnosis (pending)
-    ];
-    
-    logSheet.appendRow(newVisitRow);
-    const lastRow = logSheet.getLastRow();
-    // Get the cell in Column E of the last row (E is the 5th column)
-    const eventCell = logSheet.getRange(lastRow, 5); 
-    
-    // Set the formula
-    sheetLink(getEventUrl(fullEvent, eventId), "View Event", eventCell);
 
-    return `Visit successfully booked for ${patientName} on ${startDateTime.toLocaleString()}.`;
+    const visit = new VisitModel(
+        startDateTime,
+        notes,
+        visitPrice,
+        '',
+        sheetLink(getEventUrl(fullEvent, eventId), "View Event", null, true),
+        'Pending',
+        patient);
+
+    visit.persist();
+
+    return redirectToPatientDetailPageResponse(patient);
+    // TODO: set the following message as a flash message upon redirect.
+    // return `Visit successfully booked for ${patient.patientName} on ${startDateTime.toLocaleString()}.`;
 
   } catch (e) {
     // If the spreadsheet append fails, you may want to delete the event to prevent a ghost booking!
     Logger.log("Booking error: " + e);
-    // You would need to handle cleanup here if possible.
-    return `Error booking visit: ${e.message}`;
+    data.error = `Error booking visit: ${e.message}`;
+    return mergeTemplateData('NewVisitForm', {patient: patient, data: data});
+
   }
 }
 
@@ -125,13 +119,6 @@ function createAndInvitePatientEvent(patientName,
   }
 }
 
-// Example of how to call this function:
-// const newPatientId = 'patient_345'; // Example ID
-// const patientEmail = 'patient.email@example.com';
-// const start = new Date(2025, 11, 13, 10, 0);
-// const end = new Date(2025, 11, 13, 11, 0);
-// const eventId = createAndInvitePatientEvent('John Doe', start, end, patientEmail, SpreadsheetApp.getActiveSpreadsheet());
-
 function getBaseEventId(fullEventId, calendarId) {
   // Finds the '@' symbol and returns the substring before it.
   const atIndex = fullEventId.indexOf('@');
@@ -148,6 +135,7 @@ function getEventUrl(fullEvent, eventId) {
   let calendarUrl;
   try {
       // This should now work on the re-fetched object
+      // TODO: still fails double check API docs.
       calendarUrl = fullEvent.getHtmlLink(); 
   } catch (e) {
       // Fallback: If it still fails, use the simpler public event link format

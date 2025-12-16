@@ -1,55 +1,11 @@
 function patientDetailController(data) {
-    const patientSS = SpreadsheetApp.openById(data.patientId);
-    const logSheet = patientSS.getSheets()[0]; 
-    const patientFolder = DriveApp.getFileById(patientSS.getId()).getParents().next();
-    // Initialize the details object
-    const details = {
-        patientSSUrl: patientSS.getUrl(),
-        folderUrl: patientFolder.getUrl(),
-        patientId: data.patientId, // Keep the ID for passing to the New Visit form
-        patientName: 'N/A',
-        lastVisit: 'N/A',
-        lastDiagnosis: 'N/A',
-        notes: 'No general notes available.' // Placeholder for general notes if needed later
-    };
+    const patient = Patient.fromSheet(data.patientId)
 
-    // --- 1. Get Patient Name from Header (Cell B1) ---
-    // Assuming the patient log sheet has the name in cell B1.
-    details.patientName = logSheet.getRange('B1').getValue();
-    details.patientPhone = logSheet.getRange('B2').getValue();
-    details.patientEmail = logSheet.getRange('B5').getValue();
-
-    // --- 2. Get Last Visit and Diagnosis from Log (Last Row) ---
-
-    const lastRow = logSheet.getLastRow();
-
-    // Assuming data starts at row 11 (after 10 header rows)
-    if (lastRow > 10) { 
-        // Get values from the last row: Column A (Date) and Column F (Diagnosis).
-        // The range starts at lastRow, column 1 (A), width 6 (to include Diagnosis in F).
-        const visitData = logSheet.getRange(lastRow, 1, 1, 6).getValues()[0];
-        
-        const visitDate = visitData[0]; // Column A: Date/Time Object
-        const diagnosis = visitData[5]; // Column F: Diagnosis
-        
-        // Check if the date is a valid object before formatting
-        if (visitDate instanceof Date && !isNaN(visitDate)) {
-            // Format the date for display (adjust timezone and format as needed)
-            details.lastVisit = Utilities.formatDate(
-                visitDate, 
-                patientSS.getSpreadsheetTimeZone(), 
-                'yyyy-MM-dd HH:mm'
-            );
-        }
-        
-        details.lastDiagnosis = diagnosis || 'N/A';
-    }
-    return mergeTemplateData('PatientDetailForm', {details: details});  
-
+    return mergeTemplateData('PatientDetailForm', {patient});
 }
 
-function newVisitController (data) {
-    return mergeTemplateData('NewVisitForm', {details: data});
+function newVisitController (patient) {
+    return mergeTemplateData('NewVisitForm', {patient});
 }
 
 function newPatientController(data) {
@@ -71,11 +27,16 @@ function createNewPatientController(patientData) {
   } 
 
   const patient = doCreateNewPatient(patientName, patientGovId, patientPhone, patientEmail);
-  const gasUrl = ScriptApp.getService().getUrl();
-  return mergeTemplateData(null, 
+  return redirectToPatientDetailPageResponse(patient);
+}
+
+function redirectToPatientDetailPageResponse(patient) {
+    const gasUrl = ScriptApp.getService().getUrl();
+
+    return mergeTemplateData(null,
         // TODO: MAKE ROUTER
-        {literalRender: `${gasUrl}?page=PatientDetail&data=${encodeData({patientId: patient.patientSS.getId()})}`, 
-         responseMetadata: new ResponseMetadata(HTTP_CODE_REDIRECT)});
+        {literalRender: `${gasUrl}?page=PatientDetail&data=${encodeData({patientId: patient.patientSS.getId()})}`,
+            responseMetadata: new ResponseMetadata(HTTP_CODE_REDIRECT)});
 }
 
 function hasErrors(patientName, patientGovId, patientPhone) {

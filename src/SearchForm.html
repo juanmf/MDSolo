@@ -53,25 +53,17 @@ document.getElementById('patient-search-form').addEventListener('submit', functi
 
     google.script.run
         .withSuccessHandler(function(response) {
+            console.log(response);
             searchButton.disabled = false;
             // The server will return a 200/HTML_UPDATE response
-            handleSearchResponse(response);
+            handleServerResponse(response, 'search-results-container');
         })
         .withFailureHandler(function(error) {
             searchButton.disabled = false;
+            console.warn(error);
             document.getElementById('search-results-container').innerHTML = 
                 `<p style="color: red;">Search Failed: ${error.message}</p>`;
         })
         .asyncEmbedController('doPatientSearch', searchData);
 });
-
-// A simple dispatcher for the search results (assuming the server returns code: 200)
-function handleSearchResponse(response) {
-    console.log(response);
-    if (response.status === 200) {
-        document.getElementById('search-results-container').innerHTML = response.content;
-    } else {
-        // Handle other non-fatal status codes if needed
-    }
-}
 </script>

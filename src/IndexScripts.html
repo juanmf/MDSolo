@@ -1,6 +1,6 @@
 <script>
   const MAIN_CONTAINER_ID="main-content";
-  function handleServerResponse(response) {
+  function handleServerResponse(response, onSuccessReplaceTargetId = null) {
     console.log(response);
     switch (response.status) {
 
@@ -12,7 +12,18 @@
         }
         break;
 
+      case 200:
+          if (!onSuccessReplaceTargetId) {
+              return;
+          }
+          const targetElement = document.getElementById(onSuccessReplaceTargetId);
 
+          if (targetElement) {
+              targetElement.innerHTML = response.content;
+          } else {
+              console.warn(`Element with ID "${onSuccessReplaceTargetId}" was not found.`);
+          }
+          break;
       default:
         // if no redirect, local action handled by caller
         break;

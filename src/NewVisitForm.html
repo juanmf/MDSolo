@@ -1,26 +1,29 @@
 <div class="data-card">
   <h3>📅 Schedule New Visit</h3>
   <form id="new-visit-form">
-      <input type="hidden" id="patient-id" name="patient-id" value="<?!= details.patientId ?>" required>
-      
+      <? data = this.data || false; ?>
+      <input type="hidden" id="patient-id" name="patient-id" value="<?!= patient.id ?>" required>
+
       <div style="margin-bottom: 15px;">
           <label for="visit-date">Date:</label>
-          <input type="date" id="visit-date" required style="width: 100%;">
+          <input type="date" id="visit-date" required style="width: 100%;" <?!= data ? `value="${data.visitDate}"` : '' ?> >
       </div>
 
       <div style="margin-bottom: 15px;">
           <label for="visit-time">Start Time:</label>
-          <input type="time" id="visit-time" required style="width: 100%;">
+          <input type="time" id="visit-time" required style="width: 100%;" <?!= data ? `value="${data.visitTime}"` : '' ?> >
       </div>
 
       <div style="margin-bottom: 15px;">
           <label for="visit-price">Price:</label>
-          <input type="number" id="visit-price" required style="width: 100%;" value="<?!= VISIT_DEFAULT_PRICE ?>">
+          <input type="number" id="visit-price" required style="width: 100%;" <?!= data ? `value="${data.visitPrice}"` : `value="${VISIT_DEFAULT_PRICE}"` ?> >
       </div>
       
       <div style="margin-bottom: 15px;">
           <label for="initial-notes">Notes / Reason:</label>
-          <textarea id="initial-notes" required rows="3" style="width: 100%;"></textarea>
+          <textarea id="initial-notes" required rows="3" style="width: 100%;" >
+               <?!= data ? `value="${data.notes}"` : '' ?>
+          </textarea>
       </div>
       
       <button type="submit" id="schedule-button" style="background-color: #007bff; color: white; padding: 10px 15px; border: none;">
@@ -28,6 +31,6 @@
       </button>
   </form>
   
-  <p id="visit-status" style="margin-top: 15px; font-weight: bold;"></p>
+  <p id="visit-status" style="<?!= data.error ? "color:red; " : "" ?> margin-top: 15px; font-weight: bold;"><?!= data ? `value="${data.error}"` : '' ?></p>
   
   </div>
