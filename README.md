@@ -1,10 +1,119 @@
 # MDSolo - Medical Document & Schedule Organizer (Google Apps Script WebApp)
 
-MDSolo is a Google Apps Script (GAS) Web Application designed to streamline the management of patient records and scheduling within Google Workspace. It provides features for patient search, detail viewing, and automated calendar event creation with patient email invitations.
+**Your practice, in your pocket.**
 
-This guide details how to set up and deploy the project from scratch using the `clasp` command-line tool.
+MDSolo is a mobile-first command center designed to transform your Google Sheets and Calendar into a sleek, 
+smartphone-optimized interface. Manage patient records, search histories, and automate scheduling with a single 
+tap—wherever your practice takes you.
 
-## 🚀 Prerequisites
+### Why Doctors Love MD Solo:
+* 📱 **Built for Mobile:** No more tiny spreadsheet cells. Big buttons and a clean layout designed for one-handed use.
+* ⚡ **One-Tap Scheduling:** Instantly create calendar events and send patient invitations directly from the app.
+* 🛡️ **Private & Secure:** Runs entirely within your own Google account. You own your data; no third-party servers involved.
+* 🚀 **Zero Installation:** No App Store downloads. Access your portal via a secure web link on any device.
+
+
+This guide details how to set up and deploy the project from scratch, MD friendly for non-tech savvy people.
+
+*For developers, further instructions are provided for local development using the `clasp` command-line tool.*
+
+## 🩺 Quick Start Guide for Medical Professionals
+
+**MD Solo** is designed to be "Plug & Play." By default, it automatically connects to your current Google Spreadsheet and your primary Google Calendar.
+
+### 1. Create Your Private Copy
+1. Open the [MDSolo Master Spreadsheet](https://docs.google.com/spreadsheets/d/1itYDA0akNvXsHSmsgxObwguLonNvjxWoifgf60JTOYc/edit?gid=0#gid=0).
+2. In the top menu, go to **File > Make a copy**.
+3. Name it (e.g., `My Medical Practice`) and click **Make a copy**.
+
+---
+
+### 2. Understanding the Defaults (No Action Required)
+Out of the box, the app is configured with the following "Smart Defaults":
+* **Calendar:** It uses your primary Gmail calendar.
+* **Storage:** It creates a folder named `MD-SOLO-PRACTICE` in your Google Drive for patient records.
+* **Database:** It uses the spreadsheet you just copied as master index. Then creates a dedicated folder per patient, 
+containing a dedicated spreadsheet per patient for visits log. You can then use the folder and spreadsheet to add
+documents and notes manually (avoiding modifying automated fields). 
+
+> **⚠️ Limitation:** Because it uses your primary email-based calendar and static root folder name, you can only run 
+> **one** instance of MD Solo per Gmail account by default. If you need multiple separate practices on one email, see the 
+> *Advanced Configuration* section below.
+
+---
+
+### 3. Launch the Web Interface
+To access your patient portal, you must "Deploy" your copy:
+1. In your spreadsheet, go to **Extensions** > **Apps Script**.
+2. At the top right, click the blue **Deploy** button > **New deployment**.
+3. Click the **Select type** (gear icon) and choose **Web app**.
+4. Set these fields:
+    * **Execute as**: `Me`
+    * **Who has access**: `Only myself` (Crucial for HIPAA/Privacy).
+5. Click **Deploy**.
+
+---
+
+### 4. Authorization (The "Safety" Screen)
+1. Click **Authorize access** and choose your Google account.
+2. You will see a "Google hasn't verified this app" warning.
+    * Click **Advanced** (bottom left).
+    * Click **Go to MDSolo (unsafe)**.
+3. Click **Allow**.
+
+**Copy the "Web App URL" provided.** Bookmark this link on your phone or computer—this is your portal to manage patients.
+
+---
+
+### ⚙️ Advanced Configuration (Optional)
+If you want to change the folder name or run a **second instance** of the app on the same Gmail account:
+1. Open the **Apps Script** editor.
+2. Click `Constants.gs` on the left.
+3. You can manually override the following lines by removing the `//` and typing your specific details:
+
+```javascript
+// Example: Use a specific calendar instead of your primary one
+const MD_CALENDAR_ID = 'private-practice-1@gmail.com';
+
+// Example: Change your patient records folder name
+const ROOT_FOLDER_ID = 'Custom-Folder-Name';
+```
+
+# For Developers
+
+This application is implemented as a "hidden" (albeit still incomplete) micro-framework web with MVC design pattern 
+abstracting persistence (folder&spreadsheet) layer behind relevant Model classes.
+
+Controllers are implemented as functions following `<fn>Controller` naming convention.
+
+The View layer is teh strongest aspect so far, designed as a tree of embedded controllers with their respective template 
+presentation that can render both as part of a full web request through `doGet()` as well as AJAX-like through 
+`google.script.run.asyncEmbedController('<fn>', data)`. Where `<fn>` should match some controller function 
+`<fn>Controller(data)`.
+
+Example from `Index.html` of the neatness of embedded controllers.
+```html
+<html>
+<head>
+    <base target="_top">
+    <?!= includeStaticTemplate('PicoCSS', null)?>
+</head>
+<body>
+    <?!= includeStaticTemplate('IndexScripts', null)?>
+
+    <?!= embedController(headerController, {user_name: user_name}); ?>
+    <?!= embedController(menuController, {gasUrl: gasUrl}); ?>
+
+    <div id="main-content">
+        <?!= embedController(pageController, queryData); ?>
+    </div>
+
+</body>
+</html>
+
+```
+## Command line deployments and Local Development 
+### 🚀 Prerequisites
 
 Before starting, ensure you have the following installed and set up:
 
@@ -18,9 +127,9 @@ Before starting, ensure you have the following installed and set up:
     * **Master Patient Index Sheet:** An empty Google Sheet that will serve as the index for all patients.
     * **Dedicated Google Calendar:** A calendar for scheduling patient appointments.
 
-## ⚙️ Setup and Configuration
+### ⚙️ Setup and Configuration
 
-### Step 1: Clone the Repository and Log in to Clasp
+#### Step 1: Clone the Repository and Log in to Clasp
 
 1.  Clone the project repository:
 
@@ -48,7 +157,7 @@ Before starting, ensure you have the following installed and set up:
       clasp clone <Script ID>
       ```
 
-### Step 2: Configure Project Constants
+#### Step 2: Configure Project Constants
 
 Navigate to the `src/Constants.js` file to configure the IDs for your Google Workspace resources.
 
@@ -64,7 +173,7 @@ const MASTER_SHEET_ID = "1abc2def3ghi4jkl5mno6pqr7stu8vwx9yz0";
 const MD_CALENDAR_ID = "your.email.or.calendar.id@group.calendar.google.com";
 ```
 
-### 🛑 Step 3: Enable the Advanced Calendar API Service (CRITICAL)
+#### 🛑 Step 3: Enable the Advanced Calendar API Service (CRITICAL)
 
 The event creation logic relies on the Advanced Calendar API to send email invites (`sendNotifications: true`). This service must be enabled manually and then synchronized with `clasp`.
 
@@ -91,11 +200,11 @@ The event creation logic relies on the Advanced Calendar API to send email invit
 
     *If you skip this step, deployment will remove the API, and your script will fail with the error `Calendar is not defined`.*
 
-## 🚀 Deployment
+### 🚀 Deployment
 
 The deployment workflow uses `clasp push` to sync code and `clasp deploy` to publish the Web App URL.
 
-### Step 1: Push Local Code to GAS Server
+#### Step 1: Push Local Code to GAS Server
 
 Push your local files (including the configured `Constants.js` and the updated `appsscript.json`) to the Google Apps Script project:
 
@@ -103,7 +212,7 @@ Push your local files (including the configured `Constants.js` and the updated `
 clasp push
 ```
 
-### Step 2: Create the Initial Web App Deployment
+#### Step 2: Create the Initial Web App Deployment
 
 This command creates the first stable version (e.g., Version 1) and generates your permanent Web App URL.
 
@@ -118,7 +227,7 @@ When prompted, select **Web App** as the deployment type and configure:
 
 After deployment, **copy the resulting Deployment ID.**
 
-### Step 3: Update Existing Deployment
+#### Step 3: Update Existing Deployment
 
 To update the code running behind your active Web App URL without changing the URL, use the `--deploymentId` flag with the ID you copied in Step 2.
 
@@ -137,3 +246,8 @@ Pepe_1765594453472
 
 You can manually add Documents to the folder, which can be opened from the web app. 
 Spreadsheet is used as database. Do not modify structure added by script.
+
+## TODO
+
+Check TODO.js for what might be comming next, or contribution ideas.
+If you feel like contributing feel free to PR unit tests :).
