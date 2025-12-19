@@ -1,4 +1,15 @@
 /**
+ * MDSolo - Medical Document & Schedule Organizer
+ * Copyright (C) 2025  Juan M. Fernandez (juanmf@gmail.com).
+ * * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * * For commercial licensing inquiries, contact: juanmf@gmail.com
+ */
+
+/**
+ *
  * Handles the initial Web App GET request. This function acts as the primary
  * router, determining which controller to execute based on the URL parameter 'page'.
  *

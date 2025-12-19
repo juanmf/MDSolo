@@ -6,6 +6,8 @@ MDSolo is a mobile-first command center designed to transform your Google Sheets
 smartphone-optimized interface. Manage patient records, search histories, and automate scheduling with a single 
 tap—wherever your practice takes you.
 
+> MDSolo is licensed under AGPLv3. If you wish to use this code in a proprietary/closed-source product, please contact the author for a commercial license.
+
 ### Why Doctors Love MD Solo:
 * 📱 **Built for Mobile:** No more tiny spreadsheet cells. Big buttons and a clean layout designed for one-handed use.
 * ⚡ **One-Tap Scheduling:** Instantly create calendar events and send patient invitations directly from the app.
