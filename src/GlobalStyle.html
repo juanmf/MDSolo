@@ -1,0 +1,213 @@
+<style>
+  /* DEFAULT (Desktop/Laptop): Standard comfortable size */
+  html {
+    font-size: 20px;
+  }
+  /* This is the magic bullet to stop iOS auto-zoom */
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="date"],
+  select,
+  textarea,
+  select:focus {
+    font-size: 16px !important; /* Minimum to prevent iOS zoom */
+  }
+  /* Make labels easier to read and give them weight */
+  label {
+    /* This forces the label to be at least the size of your root font (20px/22px) */
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem; /* Adds sp ace so it's not cramped against the input */
+    display: inline-block;
+  }
+
+  legend {
+    font-size: 1rem; /* Makes it look like an <h2> */
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--secondary); /* Optional: uses your brand color for the title */
+    border-bottom: 1px solid var(--muted-border-color); /* Adds a nice separator line */
+    width: 100%;
+    padding-bottom: 0.5rem;
+  }
+
+  /* Increase the size and "hit area" of your navigation menu */
+  nav a, nav summary {
+    font-size: 1.1rem;
+    padding: 0.75rem 1rem; /* Bigger tap targets */
+  }
+  /* Make the nav/header responsive */
+  nav.container {
+    height: auto; /* Allows the banner to grow if text wraps */
+    padding: 1rem 0;
+  }
+
+  nav ul {
+    flex-direction: row; /* Side-by-side */
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  /* Ensure the text doesn't disappear */
+  nav li {
+    list-style: none;
+    white-space: normal; /* Allows the email to wrap if it's very long */
+    word-break: break-all;
+  }
+
+  /* Ensure inputs don't zoom in on iPhone (iOS zooms if font < 16px) */
+  input, select, textarea {
+    font-size: 1rem !important;
+  }
+
+  /* Prevent the dropdown from stretching the whole header */
+  nav details[role="list"] {
+    margin-bottom: 0;
+    display: inline-block;
+  }
+
+  /* Make the dropdown menu float over the content (like a real menu) */
+  nav details[role="list"] ul {
+    position: absolute;
+    right: 0;
+    left: auto;
+    z-index: 99;
+    min-width: 350px !important;
+    background: var(--card-background-color);
+    box-shadow: var(--card-sectionning-shadow);
+    display: flex;
+    overflow-x: auto;    /* Adds a swipe-able scroll if the menu is too wide for the phone */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iPhone */
+    gap: 0.5rem;         /* Consistent spacing between items */
+  }
+
+  nav details[role="listbox"] ul li {
+    white-space: nowrap; /* Prevents text from breaking into 2 letters per line */
+    flex-shrink: 0;      /* Prevents the container from squeezing the item */
+  }
+
+  /* Ensure tables scale with the rest of the app */
+  .table-container table {
+    width: 100%;
+    font-size: 1rem; /* Inherits from your html { font-size: 22px } */
+  }
+
+  /* Styling the Data Card for maximum readability */
+  .data-card p {
+    font-size: 1.1rem; /* Proportional to your 22px root font */
+    margin-bottom: 0.75rem; /* Space out the rows for touch/reading */
+    line-height: 1.4;
+  }
+
+  .data-card p strong {
+    color: var(--primary); /* Highlight the labels (Last Visit, etc.) */
+    font-weight: 700;
+    display: inline-block;
+    min-width: 130px; /* Aligns the data values vertically on desktop */
+  }
+
+
+  /* PHONES/Tablets (The "MD Pocket" View): Max visibility */
+  @media screen and (max-width: 480px) {
+    input[type="text"],
+    input[type="number"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="date"],
+    select,
+    textarea,
+    html,
+    select:focus {
+      font-size: 18px !important;
+      touch-action: manipulation; /* Disables double-tap to zoom */
+    }
+
+    input[type="number"],
+    input[type="text"],
+    select {
+      height: auto;
+      padding: 0.3rem; /* Makes the box bigger and easier to tap */
+    }
+
+    label {
+      /* Making it slightly larger than the base to ensure it's the first thing seen */
+      font-size: 0.8rem;
+      color: var(--h1-color); /* Uses Pico's heading color for better contrast */
+    }
+
+    legend {
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    nav ul {
+      align-items: center;
+      flex-direction: column; /* Stack vertically by default (Mobile) */
+    }
+
+    nav summary {
+      padding: 0.3rem 0.5rem;
+      font-weight: bold;
+    }
+
+    .table-container th,
+    .table-container td {
+      padding: 0.75rem 0.5rem; /* Bigger tap targets for links */
+      font-size: 1.1rem;      /* Extra bump for readability */
+    }
+
+    .table-container th {
+      font-size: 0.8rem;      /* Small but bold headers to save vertical space */
+      letter-spacing: 0.05rem;
+    }
+
+    /* Prevent the "View Sheet" link from being a tiny blue speck */
+    .table-container td a {
+      display: inline-block;
+      padding: 4px 8px;
+      background: var(--secondary-focus); /* Makes it look like a subtle button */
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .data-card p {
+      font-size: 1.2rem; /* Even bigger on phones */
+      display: flex;
+      flex-direction: column; /* Stack Label above Value to prevent squishing */
+      gap: 0.25rem;
+    }
+
+    .data-card p strong {
+      font-size: 0.85rem;
+      letter-spacing: 0.05rem;
+    }
+  }
+
+  .action-group {
+    display: flex;
+    flex-wrap: wrap;      /* MAGIC: Allows buttons to jump to next line if no room */
+    gap: 10px;            /* Space between buttons */
+    margin-bottom: 25px;  /* Your requested bottom padding/spacing */
+  }
+
+  .action-group a[role="button"] {
+    flex: 1 1 150px;      /* Grow and shrink, but try to stay around 150px wide */
+    margin-bottom: 0;     /* Pico adds bottom margin to buttons; reset it here */
+    text-align: center;
+    white-space: nowrap;  /* Prevents the text inside from breaking weirdly */
+    overflow: hidden;
+    text-overflow: ellipsis; /* If email is CRAZY long, it adds "..." instead of breaking the box */
+  }
+
+  /* Pocket MD specific: If screen is very narrow, make buttons full width */
+  @media screen and (max-width: 480px) {
+    .action-group a[role="button"] {
+      flex: 1 1 100%;     /* On small phones, force each button to its own line */
+      font-size: 0.9rem;  /* Slightly smaller font to fit long emails */
+    }
+  }
+</style>

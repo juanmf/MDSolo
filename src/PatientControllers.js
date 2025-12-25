@@ -30,6 +30,11 @@ function createNewPatientController(patientData) {
   return redirectToPatientDetailPageResponse(patient);
 }
 
+function updateVisitStatusController(data) {
+    const {eventId, value} = data;
+    // TODO: will need sheetId & vist row number to update event status. Also needs a new column for this value (G),
+}
+
 function redirectToPatientDetailPageResponse(patient) {
     const gasUrl = ScriptApp.getService().getUrl();
 

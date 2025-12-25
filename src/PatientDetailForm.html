@@ -1,7 +1,7 @@
 <div class="details-grid">
     <div class="header-info">
         <h3>Patient: <?!= patient.patientName ?></h3>
-        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+        <div class="action-group">
             <a role="button"
                href="mailto:<?!= patient.patientEmail ?>"
                class="secondary small"
@@ -17,7 +17,7 @@
             </a>
         </div>
 
-        <div><a role="button" href="<?!= patient.patientSS.getUrl(); ?>">Open Patient Sheet</a>
+        <div class="action-group"><a role="button" href="<?!= patient.patientSS.getUrl(); ?>">Open Patient Sheet</a>
         <a role="button" href="<?!= patient.patientFolder.getUrl(); ?>">Open Patient Folder</a></div>
         
     </div>
@@ -26,7 +26,17 @@
         <h3>Summary</h3>
         <p><strong>Last Visit:</strong> <?!= patient.lastVisit ? patient.lastVisit.getFormattedAppointmentDate() : 'N/A' ?></p>
         <p><strong>Last Diagnosis:</strong> <?!= patient.lastVisit ? patient.lastVisit.diagnosis || 'N/A' : 'N/A' ?></p>
-
+        <p>
+            <strong>Visit Status:</strong>
+            <select id="status-picker"
+                    onchange="updateVisitStatus('<?= patient.lastVisit.eventId ?>', this.value)"
+                    style="display: inline-block; width: auto; margin: 0; padding: 2px 10px; height: auto;">
+                <option value="Scheduled" <? innerStatus == 'Scheduled' ? 'selected' : '' ?>>📅 Scheduled</option>
+                <option value="Completed" <? innerStatus == 'Completed' ? 'selected' : '' ?>>✅ Completed</option>
+                <option value="Cancelled" <? innerStatus == 'Cancelled' ? 'selected' : '' ?>>🚫 Cancelled</option>
+            </select>
+        </p>
+        <p id="visit-event-status" style="margin-top: 15px; font-weight: bold;"></p>
         <hr style="border: 0; border-top: 1px solid #ddd; margin: 15px 0;">
 
     </div>
@@ -41,6 +51,28 @@
 </div>
 
 <script>
+    function updateVisitStatus(eventId, value) {
+        const status = document.getElementById("visit-event-status");
+
+        google.script.run
+            .withSuccessHandler(function(response) {
+                status.innerHTML = response.content;
+
+                if (response.status === 200) {
+                    status.style.color = "var(--primary)";
+                } else if (response.status >= 400) {
+                    status.style.color = "var(--del-color)";
+                }
+        })
+            .withFailureHandler(function(error) {
+                status.innerHTML = error;
+                status.style.color = "var(--del-color)";
+
+            })
+            //patientLogSSId, visitDate, visitTime, visitPrice, notes
+                .asyncEmbedController('updateVisitStatus', {eventId, value});
+    }
+
     const form =  document.getElementById('new-visit-form');
     initForm(form);
 
@@ -69,7 +101,6 @@
             statusDiv.style.color = '#FFA500'; // Orange for pending
 
             // Asynchronously call the server-side function
-            // TODO: revisit action on success. (reload/Home/)
             google.script.run
                 .withSuccessHandler(function(response) {
                     handleServerResponse(response);

@@ -1,9 +1,17 @@
-<nav>
+<nav class="container">
     <ul>
-        <!-- <li><a href="<?!= gasUrl ?>?page=Appointments&data=<?!= encodeData({test:1}) ?>">See Appointments for Today</a></li> -->
-        <li><a href="<?!= gasUrl ?>?page=Home">Home</a></li>
-        <li><a href="<?!= gasUrl ?>?page=PatientSearch">Search Patient</a></li>
-        <li><a href="<?!= gasUrl ?>?page=NewPatient">New Patient</a></li>
-        
+        <li><H3>MD Portal <br> <?= user_name ?></H3></li>
+    </ul>
+    <ul>
+        <li>
+            <details role="list" dir="rtl">
+                <summary aria-haspopup="listbox" role="link">☰</summary>
+                <ul role="listbox">
+                    <li><a href="<?!= gasUrl ?>?page=Home">Home</a></li>
+                    <li><a href="<?!= gasUrl ?>?page=PatientSearch">Search Patient</a></li>
+                    <li><a href="<?!= gasUrl ?>?page=NewPatient">New Patient</a></li>
+                </ul>
+            </details>
+        </li>
     </ul>
 </nav>

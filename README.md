@@ -85,6 +85,13 @@ const ROOT_FOLDER_ID = 'Custom-Folder-Name';
 
 # For Developers
 
+## Important
+
+Link above to Master spreadsheet points to latest stable release, currently v-0.1.0-MVP.
+`.clasp.json` points to latest Script project under a different (copied form lasted stable) spreadsheet.
+So the link above should remain consistent with project description and release notes.
+
+
 This application is implemented as a "hidden" (albeit still incomplete) micro-framework web with MVC design pattern 
 abstracting persistence (folder&spreadsheet) layer behind relevant Model classes.
 
@@ -150,15 +157,11 @@ Before starting, ensure you have the following installed and set up:
 
     This will open a browser window asking you to grant permissions.
 
-3.  Clone the associated Apps Script project. If this is a brand new project, you'll need to create the script first.
+3.  Clone the associated Apps Script project. Copy the public master spreadsheet over to yor space. 
+Open `App Script` in `Extensions` menu. Then:  
 
-    * **If your project is new:**
       ```bash
-      clasp create --title "MDSolo WebApp" --type webapp --rootDir ./src
-      ```
-    * **If you are linking to an existing project:**
-      ```bash
-      clasp clone <Script ID>
+      clasp clone <Script ID> # get id from URL in https://script.google.com/u/0/home/projects/<Script ID>/edit 
       ```
 
 #### Step 2: Configure Project Constants

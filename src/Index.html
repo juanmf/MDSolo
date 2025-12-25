@@ -2,13 +2,13 @@
 <html>
 <head>
     <base target="_top">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
     <?!= includeStaticTemplate('PicoCSS', null)?>
+    <?!= includeStaticTemplate('GlobalStyle', null) ?>
 </head>
 <body>
     <?!= includeStaticTemplate('IndexScripts', null)?>
-
-    <?!= embedController(headerController, {user_name: user_name}); ?>
-    <?!= embedController(menuController, {gasUrl: gasUrl}); ?>
+    <?!= embedController(menuController, {user_name: user_name, gasUrl: gasUrl}); ?>
 
     <div id="main-content">
         <?!= embedController(pageController, queryData); ?>

@@ -23,6 +23,9 @@ function doGet(e) {
   // Use the main routing function to embed the Index template.
   const template = embedController(indexController, controllerData, null, false);
 
+  // This explicitly tells the Google wrapper to try and respect these bounds
+  template.addMetaTag('viewport', 'width=device-width, initial-scale=1, maximum-scale=1');
+
   return template
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
       .setTitle('MD Portal');

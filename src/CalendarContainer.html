@@ -1,4 +1,17 @@
 
 <div class="calendar-container">
-  <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=<?!= encodeURIComponent(timeZone)?>&showPrint=0&mode=WEEK&src=<?!= mdCalendarId?>&color=%237986cb" style="border:solid 1px #777" width="800" height="600" frameborder="0" scrolling="no"></iframe>
+  <iframe class="calendar" src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=<?!= encodeURIComponent(timeZone)?>&showPrint=0&mode=WEEK&src=<?!= mdCalendarId?>&color=%237986cb" style="border:solid 1px #777" width="800" height="600" frameborder="0" scrolling="no"></iframe>
 </div>
+<style>
+  .calendar-container {
+    width: 100% !important;
+    overflow-x: auto; /* Enables horizontal swiping */
+    -webkit-overflow-scrolling: touch; /* Smooth swiping on iPhone */
+    margin-bottom: 1rem;
+  }
+
+  /* Ensure the calendar itself keeps its shape but doesn't break the container */
+  .calendar-container .calendar {
+    min-width: 800px; /* Keeps the calendar wide enough to be useful */
+  }
+</style>

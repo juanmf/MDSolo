@@ -91,8 +91,20 @@ class VisitModel {
     this.visitPrice = visitPrice;
     this.paid = paid;
     this.eventLinkFormula = eventLinkFormula;
+    this.eventId = this.getEventIdFromFormula(eventLinkFormula);
     this.diagnosis = diagnosis;
     this.patient = patient;
+  }
+
+  getEventIdFromFormula(eventLinkFormula) {
+    // =HYPERLINK("https://calendar.google.com/calendar/event?eid=bHIwZ3FjbGxvY2cwdmE3MzNqaXNkbnJ1bm8ganVhbm1mQGdtYWlsLmNvbQ", "View Event")
+    const eventIdRegex = /=HYPERLINK\(".+eid=([^"]+)/;
+    const match = eventLinkFormula.match(eventIdRegex);
+    let eventId = null;
+    if (match && match[1]) {
+      eventId = match[1];
+    }
+    return eventId;
   }
 
   getFormattedAppointmentDate() {

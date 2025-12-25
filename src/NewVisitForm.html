@@ -16,7 +16,10 @@
 
       <div style="margin-bottom: 15px;">
           <label for="visit-price">Price:</label>
-          <input type="number" id="visit-price" required style="width: 100%;" <?!= data ? `value="${data.visitPrice}"` : `value="${VISIT_DEFAULT_PRICE}"` ?> >
+          <input type="number"
+                 id="visit-price"
+                 inputmode="numeric"
+                 required style="width: 100%;" <?!= data ? `value="${data.visitPrice}"` : `value="${VISIT_DEFAULT_PRICE}"` ?> >
       </div>
       
       <div style="margin-bottom: 15px;">
